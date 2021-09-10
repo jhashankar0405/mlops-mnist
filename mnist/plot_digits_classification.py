@@ -14,6 +14,7 @@ print(__doc__)
 
 # Standard scientific Python imports
 import matplotlib.pyplot as plt
+import pandas as pd
 
 # Import datasets, classifiers and performance metrics
 from sklearn import datasets, svm, metrics
@@ -59,44 +60,60 @@ for ax, image, label in zip(axes, digits.images, digits.target):
 # flatten the images
 n_samples = len(digits.images)
 data = digits.images.reshape((n_samples, -1))
+gammas = [0.0001, 0.001, 0.01, 0.1, 1, 10, 100, 1000, 10000]
 
-# Create a classifier: a support vector classifier
-clf = svm.SVC(gamma=0.001)
+acc_test  = []
+acc_val   = []
 
-# Split data into 50% train and 50% test subsets
-X_train, X_test, y_train, y_test = train_test_split(
-    data, digits.target, test_size=0.5, shuffle=False)
+for gamma in gammas:
+	# Create a classifier: a support vector classifier
+	clf = svm.SVC(gamma=gamma)
 
-# Learn the digits on the train subset
-clf.fit(X_train, y_train)
+	# Split data into 50% train and 50% test subsets
+	X_train, X_test, y_train, y_test = train_test_split(
+		data, digits.target, test_size=0.3, shuffle=False)
+	
+	X_test, X_val, y_test, y_val = train_test_split(
+		X_test, y_test, test_size=0.5, shuffle=False)
+	
+	# Learn the digits on the train subset
+	clf.fit(X_train, y_train)
 
-# Predict the value of the digit on the test subset
-predicted = clf.predict(X_test)
+	# Predict the value of the digit on the test subset
+	acc_test.append(metrics.accuracy_score(y_test, clf.predict(X_test)))
+	acc_val.append(metrics.accuracy_score(y_val, clf.predict(X_val)))
 
-###############################################################################
-# Below we visualize the first 4 test samples and show their predicted
-# digit value in the title.
+	###############################################################################
+	# Below we visualize the first 4 test samples and show their predicted
+	# digit value in the title.
 
-_, axes = plt.subplots(nrows=1, ncols=4, figsize=(10, 3))
-for ax, image, prediction in zip(axes, X_test, predicted):
-    ax.set_axis_off()
-    image = image.reshape(8, 8)
-    ax.imshow(image, cmap=plt.cm.gray_r, interpolation='nearest')
-    ax.set_title(f'Prediction: {prediction}')
+	# _, axes = plt.subplots(nrows=1, ncols=4, figsize=(10, 3))
+	# for ax, image, prediction in zip(axes, X_test, predicted):
+    # 		ax.set_axis_off()
+   	# 	image = image.reshape(8, 8)
+    # 		ax.imshow(image, cmap=plt.cm.gray_r, interpolation='nearest')
+    # 		ax.set_title(f'Prediction: {prediction}')
 
-###############################################################################
-# :func:`~sklearn.metrics.classification_report` builds a text report showing
-# the main classification metrics.
+	###############################################################################
+	# :func:`~sklearn.metrics.classification_report` builds a text report showing
+	# the main classification metrics.
 
-print(f"Classification report for classifier {clf}:\n"
-      f"{metrics.classification_report(y_test, predicted)}\n")
+	# print(f"Classification report for classifier {clf}:\n"
+    #   	f"{metrics.classification_report(y_test, predicted)}\n")
 
-###############################################################################
-# We can also plot a :ref:`confusion matrix <confusion_matrix>` of the
-# true digit values and the predicted digit values.
+	###############################################################################
+	# We can also plot a :ref:`confusion matrix <confusion_matrix>` of the
+	# true digit values and the predicted digit values.
 
-disp = metrics.plot_confusion_matrix(clf, X_test, y_test)
-disp.figure_.suptitle("Confusion Matrix")
-print(f"Confusion matrix:\n{disp.confusion_matrix}")
+	# disp = metrics.plot_confusion_matrix(clf, X_test, y_test)
+	# disp.figure_.suptitle("Confusion Matrix")
+	# print(f"Confusion matrix:\n{disp.confusion_matrix}")
 
-plt.show()
+	# plt.show()
+
+df_results = pd.DataFrame({'gamma':gammas, 'test_accuracy':  acc_test, 'val_accuracy': acc_val})
+print(df_results)
+print()
+
+print(f"Best gamma: {df_results.loc[df_results['test_accuracy'].idxmax(), 'gamma']}")
+
