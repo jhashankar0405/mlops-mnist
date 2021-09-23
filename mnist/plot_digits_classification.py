@@ -17,8 +17,10 @@ import matplotlib.pyplot as plt
 import pandas as pd
 
 # Import datasets, classifiers and performance metrics
-from sklearn import datasets, svm, metrics
-from sklearn.model_selection import train_test_split
+from sklearn import datasets, svm
+from utils.utils import preprocess, create_splits, test
+from sklearn.metrics import accuracy_score
+import pickle
 
 ###############################################################################
 # Digits dataset
@@ -57,31 +59,46 @@ for ax, image, label in zip(axes, digits.images, digits.target):
 # subsequently be used to predict the value of the digit for the samples
 # in the test subset.
 
-# flatten the images
-n_samples = len(digits.images)
-data = digits.images.reshape((n_samples, -1))
 gammas = [0.0001, 0.001, 0.01, 0.1, 1, 10, 100, 1000, 10000]
+rescale_factor = [1]
 
-acc_test  = []
-acc_val   = []
+# flatten the images
+# data    = preprocess(digits.images.reshape(n_samples, -1), rescale_factor = rescale_factor)
+n_samples = len(digits.images)
+data      = digits.images.reshape(n_samples, -1)
+n_samples = len(data)
+
+used_gammas = []
+locations   = []
+acc_val     = []
+
+# Split data into 70% train and 30% test subsets
+X_train, X_test, X_validation, y_train, y_test, y_validation = create_splits(data, digits, test_size=0.3, validation_size_from_test_size=0.5)
 
 for gamma in gammas:
 	# Create a classifier: a support vector classifier
 	clf = svm.SVC(gamma=gamma)
-
-	# Split data into 50% train and 50% test subsets
-	X_train, X_test, y_train, y_test = train_test_split(
-		data, digits.target, test_size=0.3, shuffle=False)
-	
-	X_test, X_val, y_test, y_val = train_test_split(
-		X_test, y_test, test_size=0.5, shuffle=False)
 	
 	# Learn the digits on the train subset
 	clf.fit(X_train, y_train)
 
 	# Predict the value of the digit on the test subset
-	acc_test.append(metrics.accuracy_score(y_test, clf.predict(X_test)))
-	acc_val.append(metrics.accuracy_score(y_val, clf.predict(X_val)))
+
+	val_accuracy = accuracy_score(y_validation, clf.predict(X_validation))
+	if val_accuracy < 0.11:
+		continue
+	
+	location = f'models/svm_gamma_{gamma}.pkl'
+
+	#Save the model to disk
+	with open(location, 'wb') as handle:
+		pickle.dump(clf, handle, protocol=pickle.HIGHEST_PROTOCOL)
+
+	used_gammas.append(gamma)
+	acc_val.append(val_accuracy)
+	locations.append(location)
+
+
 
 	###############################################################################
 	# Below we visualize the first 4 test samples and show their predicted
@@ -111,9 +128,18 @@ for gamma in gammas:
 
 	# plt.show()
 
-df_results = pd.DataFrame({'gamma':gammas, 'test_accuracy':  acc_test, 'val_accuracy': acc_val})
+df_results = pd.DataFrame({'gamma':used_gammas, 'model_path':  locations, 'val_accuracy': acc_val})
 print(df_results)
 print()
 
-print(f"Best gamma: {df_results.loc[df_results['test_accuracy'].idxmax(), 'gamma']}")
+print(f"Best gamma: {df_results.loc[df_results['val_accuracy'].idxmax(), 'gamma']}")
 
+print(df_results.loc[df_results['val_accuracy'].idxmax(), 'model_path'])
+# Loading the best model 
+
+with open(df_results.loc[df_results['val_accuracy'].idxmax(), 'model_path'], 'rb') as pickle_file:
+    best_clf = pickle.load(pickle_file)
+
+test_accuracy = accuracy_score(y_test, best_clf.predict(X_test))
+
+print(f"Accuracy of best classfier on test data is {test_accuracy}")
