@@ -1,12 +1,4 @@
-# mlops-mnist
+# Quiz 2
 
-### Training samples
-![alt text](https://github.com/jhashankar0405/mlops-mnist/blob/feature/plot/images/sample_training.png)
-
-
-### Confusion matrix
-![alt text](https://github.com/jhashankar0405/mlops-mnist/blob/feature/plot/images/confusion_matrix.png)
-
-
-### Prediction sample
-![alt text](https://github.com/jhashankar0405/mlops-mnist/blob/feature/plot/images/sample_predictions.png)
+### Successful test cases
+![alt text](https://github.com/jhashankar0405/mlops-mnist/blob/feature/quiz2/images/test_cases_quiz_2.png)
