@@ -22,7 +22,7 @@ gammas = [0.0001, 0.001, 0.01, 0.1, 1, 10, 100, 1000, 10000]
 preprocessed_data = preprocess(data, 1)
 
 # Split data into 70% train and 30% test subsets
-X_train, X_test, X_val, y_train, y_test, y_val = create_splits(preprocessed_data, digits, test_size=0.3, validation_size_from_test_size=0.5)
+X_train, X_test, X_val, y_train, y_test, y_val = create_splits(preprocessed_data, digits.target, test_size=0.3, validation_size_from_test_size=0.5)
 used_gammas, models, acc_vals, f1_vals  = [], [], [], []
 path = "./models"
 
