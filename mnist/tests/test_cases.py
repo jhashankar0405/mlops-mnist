@@ -61,7 +61,7 @@ def test_small_data_overfit_checking():
     assert train_metrics['f1'] > small_data_metrics['f1'] + 0.1
 
 
-def test_no_of_samples():
+def test_no_of_samples_100():
 
     digits    = datasets.load_digits()
     n_samples = digits.data.shape[0]
@@ -69,7 +69,7 @@ def test_no_of_samples():
     y         = digits.target 
 
     # Selecting sample of 10
-    sample_indices = random.choices(range(X.shape[0]), k = 10)
+    sample_indices = random.choices(range(X.shape[0]), k = 100)
 
     X_sample, y_sample =  X[sample_indices], y[sample_indices]
 
@@ -85,6 +85,32 @@ def test_no_of_samples():
     assert size_of_test == int(0.2 * X_sample.shape[0])
 
     assert size_of_val == int(0.1 * X_sample.shape[0])
+
+
+def test_no_of_samples_9():
+
+    digits    = datasets.load_digits()
+    n_samples = digits.data.shape[0]
+    X         = digits.images.reshape(n_samples, -1)
+    y         = digits.target 
+
+    # Selecting sample of 9
+    sample_indices = random.choices(range(X.shape[0]), k = 9)
+
+    X_sample, y_sample =  X[sample_indices], y[sample_indices]
+
+    X_train, X_test, X_val, y_train, y_test, y_val = create_splits(X_sample, y_sample, test_size=0.3, validation_size_from_test_size=(1/3))
+
+    size_of_train, size_of_test, size_of_val = X_train.shape[0], X_test.shape[0], X_val.shape[0]
+    size_of_all = size_of_train +  size_of_test + size_of_val
+    
+    assert size_of_all == X_sample.shape[0]
+
+    assert size_of_train == round(0.7 * X_sample.shape[0])
+
+    assert size_of_test == round(0.2 * X_sample.shape[0])
+
+    assert size_of_val == round(0.1 * X_sample.shape[0])
 
 
 def test_bonus_case_1():

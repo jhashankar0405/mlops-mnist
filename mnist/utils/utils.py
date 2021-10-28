@@ -1,6 +1,7 @@
 from skimage.transform import rescale
 
 from sklearn import datasets, svm
+from sklearn import tree
 
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import accuracy_score
@@ -33,25 +34,32 @@ def create_splits(data, target, test_size, validation_size_from_test_size):
     return X_train, X_test, X_val, y_train, y_test, y_val
 
 
-def run_classification_experiment(path, gamma, X_train, y_train, X_val, y_val):
+def run_classification_experiment(path, parameter, X_train, y_train, X_val, y_val, selected_algorithm = 'svm'):
     """
     Trains an SVM and saves the model 
     Returns: Saved model name
     """
-    clf = svm.SVC(gamma=gamma)
+    if selected_algorithm == 'svm':
+        clf = svm.SVC(gamma=parameter)
+        name = f'svm_gamma_{parameter}.pkl'
+    else:
+        clf = tree.DecisionTreeClassifier()
+        name = f'dtree_maxd_{parameter}.pkl'
     # Learn the digits on the train subset
     clf.fit(X_train, y_train)
+    
 
 	# Predict the value of the digit on the test subset
     val_accuracy = accuracy_score(y_val, clf.predict(X_val))
     if val_accuracy < 0.11:
         return None
     else:
-        location = f'{path}/svm_gamma_{gamma}.pkl'
+        
+        location = f'{path}/{name}'
         #Save the model to disk
         with open(location, 'wb') as handle:
             pickle.dump(clf, handle, protocol=pickle.HIGHEST_PROTOCOL)
-        return f'svm_gamma_{gamma}.pkl'
+        return name
     
 def get_performance(path, model_name, X_test, y_test):
     with open(f'{path}/{model_name}', 'rb') as pickle_file:
