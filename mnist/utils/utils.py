@@ -73,3 +73,6 @@ def get_performance(path, model_name, X_test, y_test):
     }
 
     return result
+
+def load(model_path):
+     return pickle.load(open(model_path, 'rb'))
