@@ -19,46 +19,52 @@ def preprocess(images, rescale_factor):
     return resized_images
 
 
-def create_splits(data, target, test_size, validation_size_from_test_size):
+def create_splits(data, target, test_size, validation_size_from_test_size, random_state):
     """
     Splits the input data into train, test & validation set
     """
 
     # Split data into 70% train and 15% validation and 15% test subsets
     X_train, X_test, y_train, y_test = train_test_split(
-        data, target, test_size=test_size, shuffle=False, random_state = 42)
+        data, target, test_size=test_size, shuffle=False, random_state = random_state)
 
     X_test, X_val, y_test, y_val = train_test_split(
-        X_test, y_test, test_size=validation_size_from_test_size, shuffle=False, random_state = 42)
+        X_test, y_test, test_size=validation_size_from_test_size, shuffle=False, random_state = random_state)
     
     return X_train, X_test, X_val, y_train, y_test, y_val
 
 
-def run_classification_experiment(path, parameter, X_train, y_train, X_val, y_val, selected_algorithm = 'svm'):
+def run_classification_experiment(path, parameters, X_train, y_train, X_val, y_val, selected_algorithm = 'svm'):
     """
     Trains an SVM and saves the model 
     Returns: Saved model name
     """
     if selected_algorithm == 'svm':
-        clf = svm.SVC(gamma=parameter)
-        name = f'svm_gamma_{parameter}.pkl'
+        # print(parameters)
+        clf = svm.SVC(C=parameters[0], gamma=parameters[1], kernel = parameters[2])
+        name = f'svm_gamma_{parameters[0]}_{parameters[1]}_{parameters[2]}.pkl'
     else:
         clf = tree.DecisionTreeClassifier()
-        name = f'dtree_maxd_{parameter}.pkl'
+        name = f'dtree_maxd_{parameters[0]}.pkl'
     # Learn the digits on the train subset
     clf.fit(X_train, y_train)
     
 
 	# Predict the value of the digit on the test subset
-    val_accuracy = accuracy_score(y_val, clf.predict(X_val))
-    if val_accuracy < 0.11:
-        return None
-    else:
+    # val_accuracy = accuracy_score(y_val, clf.predict(X_val))
+    # if val_accuracy < 0.11:
+    #     return None
+    # else:
         
-        location = f'{path}/{name}'
-        #Save the model to disk
-        with open(location, 'wb') as handle:
-            pickle.dump(clf, handle, protocol=pickle.HIGHEST_PROTOCOL)
+    #     location = f'{path}/{name}'
+    #     #Save the model to disk
+    #     with open(location, 'wb') as handle:
+    #         pickle.dump(clf, handle, protocol=pickle.HIGHEST_PROTOCOL)
+
+    location = f'{path}/{name}'
+    #Save the model to disk
+    with open(location, 'wb') as handle:
+        pickle.dump(clf, handle, protocol=pickle.HIGHEST_PROTOCOL)
         return name
     
 def get_performance(path, model_name, X_test, y_test):
