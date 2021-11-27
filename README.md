@@ -9,4 +9,4 @@
 
 
 ### Question 2
-![alt text](https://github.com/jhashankar0405/mlops-mnist/blob/feature/final_exam/images/MLOPS_EndSem_Q1_Coding_XL.png)
+![alt text](https://github.com/jhashankar0405/mlops-mnist/blob/feature/final_exam/images/MLOPS_EndSem_Q2_Coding_Docker.png)
