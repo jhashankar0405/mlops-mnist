@@ -11,18 +11,29 @@ from utils import utils
 
 
 app = Flask(__name__)
-clf = utils.load('/Users/shankarjha/Documents/Personal/MTech/Semester 4/MLOPS/mlops-mnist/mnist/models/svm_gamma_0.001.pkl')
+clf_svm = utils.load('../mnist/models/svm_gamma_0.001.pkl')
+
+clf_dt = utils.load('../mnist/models/dtree_maxd_10.pkl')
+
 
 @app.route("/")
 def hello_world():
     return "<p>Hello, World!</p>"
 
-@app.route("/predict", methods=['POST', 'GET'])
-def predict():
+@app.route("/svm_predict", methods=['POST', 'GET'])
+def predict_svm():
     input_json = request.json
     image = input_json['image']
     image = np.array(image).reshape(1, -1)
-    predicted = clf.predict(image)
+    predicted = clf_svm.predict(image)
+    return str(predicted[0])
+
+@app.route("/decision_tree_predict", methods=['POST', 'GET'])
+def predict_dt():
+    input_json = request.json
+    image = input_json['image']
+    image = np.array(image).reshape(1, -1)
+    predicted = clf_dt.predict(image)
     return str(predicted[0])
 
 app.run('0.0.0.0', debug = True, port = '5000')
