@@ -1,4 +1,4 @@
-# mlops-mnist
+# Assignment - 11
 
 ### Line chart with percentage of training on x-axis the  and macro f1 on y-axis
 ![alt text](https://github.com/jhashankar0405/mlops-mnist/blob/feature/assignment-11/images/pct_training_vs_macro_f1.png)
