@@ -5,7 +5,7 @@ from sklearn import tree
 
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import accuracy_score
-from sklearn.metrics import f1_score
+from sklearn.metrics import f1_score, roc_auc_score
 import os
 import pickle
 
@@ -40,7 +40,7 @@ def run_classification_experiment(path, parameter, X_train, y_train, X_val, y_va
     Returns: Saved model name
     """
     if selected_algorithm == 'svm':
-        clf = svm.SVC(gamma=parameter)
+        clf = svm.SVC(gamma=parameter, probability = True)
         name = f'svm_gamma_{parameter}.pkl'
     else:
         clf = tree.DecisionTreeClassifier()
@@ -66,10 +66,12 @@ def get_performance(path, model_name, X_test, y_test):
         clf = pickle.load(pickle_file)
 
     predicted_test = clf.predict(X_test)
+    predicted_test_proba = clf.predict_proba(X_test)
 
     result = {
         "acc": accuracy_score(y_test, predicted_test), 
-        "f1": f1_score(y_test, predicted_test, average='weighted')
+        "f1": f1_score(y_test, predicted_test, average='macro'),
+        'roc': roc_auc_score(y_test, predicted_test_proba, multi_class="ovr")
     }
 
     return result
