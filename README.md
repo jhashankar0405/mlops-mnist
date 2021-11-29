@@ -1,4 +1,4 @@
-# mlops-mnist
+# Assignment 10
 
-### Output of the test cases from Quiz 3
-![alt text](https://github.com/jhashankar0405/mlops-mnist/blob/feature/quiz3/images/quiz3_output.png)
+### Output from the access to API from shell file
+![alt text](https://github.com/jhashankar0405/mlops-mnist/blob/feature/assignment-10/images/docker_api_svm_dt.png)
